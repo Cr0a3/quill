@@ -1,8 +1,13 @@
 [package]
 name = "cpack"
+author = "cr0a3"
+description = "Simple package manager for the c++ language"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+PrintLib = "1.2.2"
+arg = "0.4.1"
+colored = "2.1.0"
