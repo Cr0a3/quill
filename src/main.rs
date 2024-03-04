@@ -1,8 +1,10 @@
 use std::env;
 mod print;
 mod runner;
+mod api;
+mod conf;
 
-fn main() {
+pub fn main() {
     let args: Vec<String> = env::args().collect();
 
     match args.len() - 1 { // - 1 for the actual args
@@ -24,7 +26,7 @@ fn main() {
                 }
 
                 "new" => {
-                    print::error("E002", "expect package name", &cmd);
+                    print::error("E002", &format!("expect package name {}", cmd));
                 }
 
                 "run" => {
@@ -36,11 +38,11 @@ fn main() {
                 }
 
                 "add" => {
-                    print::error("E002", "expected package name", &cmd);
+                    print::error("E002", &format!("expected package name {}", cmd));
                 }
 
                 _ => {
-                    print::error("E001", "invalid command", &cmd);
+                    print::error("E001", &format!("invalid command {}", &cmd));
                 }
             }
         }
@@ -75,7 +77,7 @@ fn main() {
                 }
 
                 _ => {
-                    print::error("E001", "invalid command", &cmd);
+                    print::error("E001", &format!("invalid command {}", cmd));
                 }
             }
         }

@@ -1,4 +1,6 @@
-use PrintLib::Error::ErrorFactory;
+use std::process::exit;
+
+use PrintLib::error::ErrorFactory;
 
 pub fn help() {
 
@@ -10,8 +12,9 @@ pub fn help_cmd(cmd: String) {
     }
 }
 
-pub fn error(ecode: &str, msg: &str, line: &str) {
-    let mut fab: ErrorFactory = ErrorFactory::new(ecode.to_string(), msg.to_string());
-    fab.add_code_line(line.to_string(), false, 0, false);
-    fab.print()
+pub fn error(ecode: &str, msg: &str) {
+    let fab: ErrorFactory = ErrorFactory::new(ecode.to_string(), msg.to_string());
+    fab.print();
+
+    exit(1);
 }
