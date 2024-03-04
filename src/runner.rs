@@ -7,7 +7,7 @@ pub fn build(target: &str) -> bool {
     println!("{} {} | {}", 
     "Building ".green() + &data.package.name.green(), 
     "v".green() + &data.package.version.green(), 
-    "Target: ".blue() + &target.blue());
+    "Target: ".color(0, 42, 71) + &target.color(0, 42, 71));
 
     let mut args: Vec<String> = vec!["-Iinclude".into(), "-Isrc".into(), "-c".into()];
 
@@ -19,12 +19,14 @@ pub fn build(target: &str) -> bool {
             args.push("-O3".into());
         }
         _=> {
-            let fab = PrintLib::error::ErrorFactory::new("E006".into(), format!("unknown build target {}", target));
+            let fab = PrintLib::error::ErrorFactory::new("E006".into(), format!("unknown build target '{}'", target));
             fab.print();
 
             println!("  {}", "Known targets:".gray());
             println!("    - {}", "debug".color(0, 42, 71).bold());
             println!("    - {}", "release".color(0, 42, 71).bold());
+
+            return false;
         }
     }
 
@@ -54,7 +56,7 @@ pub fn build(target: &str) -> bool {
         cmd.arg(format!("{}", name));
         cmd.arg("-o");
         cmd.arg(
-            format!("target/{}/objs/{}.exe", target, name)
+            format!("target/{}/objs/{}.o", target, name)
         );
 
         let status = cmd.status();
