@@ -4,6 +4,8 @@ mod runner;
 mod api;
 mod conf;
 
+use crate::runner::*;
+
 pub fn main() {
     let args: Vec<String> = env::args().collect();
 
@@ -18,11 +20,11 @@ pub fn main() {
                 }
 
                 "build" => {
-                    runner::build("debug");
+                    let _ = build::build("debug");
                 }
 
                 "clean" => {
-                    runner::clean("debug");
+                    clean::clean("debug");
                 }
 
                 "new" => {
@@ -30,7 +32,7 @@ pub fn main() {
                 }
 
                 "run" => {
-                    runner::run("debug");
+                    run::run("debug");
                 }
 
                 "publish" => {
@@ -57,19 +59,19 @@ pub fn main() {
                 }
 
                 "build" => {
-                    runner::build(opt.as_str());
+                    let _ = build::build(opt.as_str());
                 }
 
                 "clean" => {
-                    runner::clean(opt.as_str());
+                    clean::clean(opt.as_str());
                 }
 
                 "new" => {
-                    runner::new(opt.as_str());
+                    new::new(opt.as_str());
                 }
 
                 "run" => {
-                    runner::run(opt.as_str());
+                    run::run(opt.as_str());
                 }
 
                 "add" => {

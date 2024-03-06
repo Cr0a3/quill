@@ -1,15 +1,15 @@
-use serde::Deserialize;
+use serde::{Serialize, Deserialize};
 use std::fs;
 use std::process::exit;
 use toml;
 use crate::print;
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Data {
     pub package: Package,
 }
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Package {
     pub name: String,
     pub version: String,
