@@ -1,16 +1,18 @@
 use PrintLib::colorize::Colorize;
 use std::{fs, path::Path};
-use crate::conf::{self};
+use crate::print;
 
-pub fn clean(target: &str) {
-    let data = conf::load_tml_cfg("cpack.toml");
-    println!("{} | {}", 
-    "Cleaning ".green() + &data.package.name.green(), 
-    "Target: ".blue() + &target.color(0, 42, 71));
-
-    let dir = Path::new("target");
+pub fn clean() {
+    let dir = Path::new("./target");
 
     if dir.exists() {
-        fs::remove_dir(dir);
+        match fs::remove_dir_all(dir) {
+            Ok(_) => {
+                print!(" {} builds", "Cleaned".bold().color(0, 42, 71));
+            },
+            Err(e) => {
+                print::error("E", &format!("error while removing target directory: {}", e.to_string()));
+            },
+        };
     }
 }

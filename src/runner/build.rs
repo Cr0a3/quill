@@ -88,12 +88,10 @@ pub fn build(target: &str) -> Result<bool, std::io::Error> {
             cmd.arg(path);
         }
 
-        print!("call: ld ");
-
-        for arg in cmd.get_args() {
-            let str = arg.to_str().unwrap();
-            print!("{} ", str);
-        }
+       cmd.arg("-o");
+       cmd.arg(
+        format!("target/{target}/{}.exe", data.package.name)
+       );
 
         let status = cmd.status();
 

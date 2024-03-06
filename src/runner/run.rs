@@ -3,7 +3,7 @@ use std::{path::Path, process::Command};
 use PrintLib::colorize::Colorize;
 use crate::runner::build::build;
 
-pub fn run(target: &str) -> bool {
+pub fn run(target: &str) -> Option<bool> {
     // read toml
     let name = conf::load_tml_cfg("cpack.toml").package.name;
 
@@ -12,12 +12,12 @@ pub fn run(target: &str) -> bool {
         Ok(b) => b,
         Err(e) => {
             print::error("E", &format!("error while compiling: {}", e.to_string()));
-            return false;
+            return Some(false);
         },
     };
 
     if sucess == false {
-        return false;
+        return Some(false);
     }
     
     // now there are no compile errors
@@ -35,15 +35,15 @@ pub fn run(target: &str) -> bool {
     match status {
         Ok(s) => {
             if s.success() {
-                println!("{}", "Programm exitet sucessfull".green());
+                println!("\n  - {} {}", "Program exited sucessfull with code".bold().green(), s.code()?);
             } else {
-                println!("{}", "Programm had an error".red());
+                println!("\n  - {} {}", "Program didn't exit sucessfull with code".bold().red(), s.code()?);
             }
-            true
+            Some(true)
         },
         Err(e) => {
             print::error("E", &format!("error while executing command: {e}"));
-            false
+            Some(false)
         },
     }
 }

@@ -24,7 +24,7 @@ pub fn main() {
                 }
 
                 "clean" => {
-                    clean::clean("debug");
+                    clean::clean();
                 }
 
                 "new" => {
@@ -60,10 +60,6 @@ pub fn main() {
 
                 "build" => {
                     let _ = build::build(opt.as_str());
-                }
-
-                "clean" => {
-                    clean::clean(opt.as_str());
                 }
 
                 "new" => {
