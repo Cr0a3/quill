@@ -93,7 +93,7 @@ pub fn main() {
                             print::error("E", "--template needs the template name after it");
                         }
                     }
-                    new::new(opt.as_str(), lib, template);
+                    let _ = new::new(opt.as_str(), lib, template);
                 }
 
                 "run" => {
