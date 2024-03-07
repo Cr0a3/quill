@@ -9,7 +9,19 @@ use crate::runner::*;
 pub fn main() {
     let args: Vec<String> = env::args().collect();
 
+    let mut options: Vec<String>  = vec!();
+
+    for arg in args.clone() {
+        if arg.chars().next() == Some('-') {
+            options.push(arg);
+        }
+    }
+
     match args.len() - 1 { // - 1 for the actual args
+        0 => {
+            print::help();
+        }
+
         1 => {
             let cmd: String = args[1].clone();
 
@@ -44,12 +56,16 @@ pub fn main() {
                 }
 
                 _ => {
-                    print::error("E001", &format!("invalid command {}", &cmd));
+                    if options.contains(&"-v".into()) || options.contains(&"--version".into()) {
+                        print::version();
+                    } else {
+                        print::help();
+                    }
                 }
             }
         }
 
-        2 => {
+        _ => {
             let cmd: String = args[1].clone();
             let opt: String = args[2].clone();
 
@@ -63,7 +79,21 @@ pub fn main() {
                 }
 
                 "new" => {
-                    new::new(opt.as_str());
+                    let lib: bool = args.contains(&"--lib".to_string());
+
+                    let mut template: &str = match lib {
+                        true => "lib_std",
+                        false => "std"
+                    };
+
+                    if let Some(index) = args.iter().position(|x| x == &String::from("--template")) {
+                        if index < args.len() - 1 {
+                            template = args[index + 1].as_str();
+                        } else {
+                            print::error("E", "--template needs the template name after it");
+                        }
+                    }
+                    new::new(opt.as_str(), lib, template);
                 }
 
                 "run" => {
@@ -75,12 +105,13 @@ pub fn main() {
                 }
 
                 _ => {
-                    print::error("E001", &format!("invalid command {}", cmd));
+                    if options.contains(&"-v".into()) || options.contains(&"--version".into()) {
+                        print::version();
+                    } else {
+                        print::help();
+                    }
                 }
             }
-        }
-        _ => {
-            print::help();
         }
     }
 }

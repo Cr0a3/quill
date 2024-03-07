@@ -2,9 +2,12 @@ use crate::{conf::{Data, Package}, print};
 use std::{fs, io::Write};
 use PrintLib::colorize::Colorize;
 
-pub fn new(name: &str) {
+pub fn new(name: &str, libary: bool, template: &str) {
+    println!("name:     {}", name);
+    println!("libary:   {}", libary);
+    println!("template: {}", template);
     
-    // creating dirs
+    /*// creating dirs
     if let Err(err) = fs::create_dir_all(format!("{name}/src")) {
         print::error(
             "E008",
@@ -72,7 +75,7 @@ pub fn new(name: &str) {
             print::error("E", &format!("error while writing main.cpp: {}", e.to_string()));
             return;
         },
-    }
+    }*/
 
-    println!("  - {} package: '{name}'", "Created ".color(0, 42, 71).bold());
+    println!("  - {} {}: '{name}'", "Created".color(0, 42, 71).bold(), match libary { true => "libary", false => "package" } );
 }

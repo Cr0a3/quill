@@ -10,8 +10,10 @@ pub fn help() {
     println!();
     println!("{}", "Options:");
     println!("   {}\t {} {}",       "-v, --version".color(59, 4, 105),      "|".color(227, 173, 25),    "Prints version info"                           );
+    println!("   {}\t\t {} {}",     "--lib".color(59, 4, 105),              "|".color(227, 173, 25),    "Makes the new package a libary"                );
+    println!("   {}\t {} {}",       "--template (name)".color(59, 4, 105),  "|".color(227, 173, 25),    "Uses template (name)"                          );
     println!();
-    println!("{}", "Common comands:");
+    println!("{}", "Common commands:");
     println!("   {}\t {} {}",       "build (target)".color(59, 4, 105),     "|".color(227, 173, 25),    "Builds current package with target (target)"   );
     println!("   {}\t\t {} {}",     "clean".color(59, 4, 105),              "|".color(227, 173, 25),    "Cleans builds"                                 );
     println!("   {}\t\t {} {}",     "new (name)".color(59, 4, 105),         "|".color(227, 173, 25),    "Creates new package with name (name)"          );
@@ -27,6 +29,10 @@ pub fn help_cmd(cmd: String) {
             error("", &format!(" Command or option {} not found", cmd));
         }
     }
+}
+
+pub fn version() {
+    println!("Cpack v{}", "1.1".bold());
 }
 
 pub fn error(ecode: &str, msg: &str) {
