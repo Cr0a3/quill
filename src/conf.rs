@@ -1,5 +1,5 @@
 use serde::{Serialize, Deserialize};
-use std::fs;
+use std::{fs, fs::File, io::Read, path::Path};
 use std::process::exit;
 use toml;
 use crate::print;
@@ -35,4 +35,27 @@ pub fn load_tml_cfg(path: &str) -> Data {
     };
 
     data
+}
+
+pub fn read_file(path: &str) -> std::io::Result<String> {
+    let path = Path::new(&path);
+
+    let mut file = match File::open(path) {
+        Ok(f) => f,
+        Err(e) => {
+            print::error("E", &format!("error while opening conf file: {}", e));
+            return Ok(String::new());
+        },
+    };
+
+    let mut buf: String = String::new();
+    match file.read_to_string(&mut buf) {
+        Ok(_) => {},
+        Err(e) => {
+            print::error("E", &format!("error while reading conf file: {}", e));
+            return Ok(String::new());
+        },
+    };
+
+    Ok(buf)
 }

@@ -1,12 +1,8 @@
-use crate::{print, conf::{self, Data, Package}};
-use std::{io, env, fs, path::Path};
+use crate::{print, conf::{self}};
+use std::{env, fs, io::{self, Write}, path::Path};
 use PrintLib::colorize::Colorize;
 
 pub fn new(name: &str, libary: bool, template: &str) -> std::io::Result<()>{
-    println!("name:     {}", name);
-    println!("libary:   {}", libary);
-    println!("template: {}", template);
-
     let current_dir = env::current_dir()?;
     let path_str =  format!("{}/templates/{}.zip", current_dir.as_os_str().to_str().expect("couldn't get current dir"), template);
     
@@ -59,13 +55,35 @@ pub fn new(name: &str, libary: bool, template: &str) -> std::io::Result<()>{
         }
     }
 
-    // rewrite config
-    let cfg_path = Path::new( &format!("{}/cpack.toml", template) );
-    
-
     // rename dir to project name
     fs::rename(template, name)?;
 
+    // rewrite config
+    let path_str = format!("{}/cpack.toml", name);
+    let path = Path::new(&path_str);
+
+    let mut buf = conf::read_file(&path_str)?;
+    buf = buf.replace("{name}", name);
+
+    // rewriting file
+
+    let mut file = match fs::File::open(path) {
+        Ok(f) => f,
+        Err(e) => {
+            print::error("E", &format!("error while opening conf file: {}", e));
+            return Ok(());
+        },
+    };
+
+    match file.write(buf.as_bytes()) {
+        Ok(_) => {},
+        Err(e) => {
+            print::error("E", &format!("error while writing conf file: {}", e));
+            return Ok(());
+        },
+    };
+    file.flush()?;
+    
     println!("  - {} {}: '{name}'", "Created".color(0, 42, 71).bold(), match libary { true => "libary", false => "package" } );
 
     Ok(())
