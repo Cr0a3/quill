@@ -1,4 +1,4 @@
-use crate::{conf::{self, parse_dependencys}, print};
+use crate::{conf::{self, parse_dependencys}, dependencys::*, print};
 use std::{fs, process::Command};
 use PrintLib::colorize::Colorize;
 
@@ -45,7 +45,14 @@ pub fn build(target: &str) -> Result<bool, std::io::Error> {
     //print dependencies
     let deps = parse_dependencys("cpack.toml");
     for (name, version) in deps {
-        println!(" - {}: {} {}", "Dependency".bold(), name, version);
+        let installed = is_installed(name.clone());
+        if installed {
+            compile(name.clone(), target.into());
+        } else {
+            if download(name.clone(), version) {
+                compile(name, target.into());
+            }
+        }
     }
 
     // compile every file

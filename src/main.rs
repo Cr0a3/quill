@@ -3,6 +3,7 @@ mod print;
 mod runner;
 mod api;
 mod conf;
+mod dependencys;
 
 use crate::runner::*;
 

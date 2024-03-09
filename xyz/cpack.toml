@@ -1,0 +1,8 @@
+[package]
+name = "xyz"
+version = "1.0.0"
+author = "your_name"
+description = "xyzs epic description"
+
+[dependencies]
+abc = "1234"
