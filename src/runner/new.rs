@@ -1,4 +1,4 @@
-use crate::{conf::{self, Dependencies, Package}, print};
+use crate::{conf::{self, Dependencies, Package, TemplateData}, print};
 use std::{env, fs, io::{self, Write}, path::Path};
 use PrintLib::colorize::Colorize;
 
@@ -59,7 +59,8 @@ pub fn new(name: &str, libary: bool, template: &str) -> std::io::Result<()>{
     fs::rename(template, name)?;
 
     // rewrite config
-    let template_deps = conf::parse_dependencys(&format!("{}/template.toml", name));
+    let template_cfg_path = format!("{}/template.toml", name);
+    let template_deps = conf::parse_dependencys(&template_cfg_path);
 
     let data = conf::Data {
         package: Package {
@@ -67,6 +68,7 @@ pub fn new(name: &str, libary: bool, template: &str) -> std::io::Result<()>{
             version: "1.0.0".into(),
             author: "your_name".into(),
             description: format!("{}s epic description", name),
+            lib: conf::load_tml_cfg::<TemplateData>(&template_cfg_path).lib,
         },
         dependencies: Dependencies { },
     };

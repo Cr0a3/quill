@@ -1,9 +1,9 @@
-use crate::{conf::{self, parse_dependencys}, dependencys::*, print};
+use crate::{conf::{self, parse_dependencys, Data}, dependencys::*, print};
 use std::{fs, process::Command};
 use PrintLib::colorize::Colorize;
 
 pub fn build(target: &str) -> Result<bool, std::io::Error> {
-    let data = conf::load_tml_cfg("cpack.toml");
+    let data = conf::load_tml_cfg::<Data>("cpack.toml");
     println!("{} | {}", 
     "Building ".green() + &data.package.name.green(), 
     "Target: ".color(0, 42, 71) + &target.color(0, 42, 71));
@@ -45,14 +45,23 @@ pub fn build(target: &str) -> Result<bool, std::io::Error> {
     //print dependencies
     let deps = parse_dependencys("cpack.toml");
     for (name, version) in deps {
-        let installed = is_installed(name.clone());
+        let installed = is_installed(&name);
         if installed {
-            compile(name.clone(), target.into());
+            if !compile(&name, &target.into()) {
+                return Ok(false);
+            }
         } else {
             if download(name.clone(), version) {
-                compile(name, target.into());
+                if !compile(&name, &target.into()) {
+                    return Ok(false);
+                }
+            } else {
+                return Ok(false);
             }
         }
+
+        // copy libary dll to current folder
+        copy_libary_build_to_current_target(name, target.into());
     }
 
     // compile every file
@@ -90,6 +99,10 @@ pub fn build(target: &str) -> Result<bool, std::io::Error> {
     }
 
     // link together
+    let lib = false;
+
+    let ext = match lib {false => "exe", true => "lib" };
+
     if sucess {
         let bins = fs::read_dir(format!("target/{target}/objs/"))?;
 
@@ -101,10 +114,15 @@ pub fn build(target: &str) -> Result<bool, std::io::Error> {
             cmd.arg(path);
         }
 
-       cmd.arg("-o");
-       cmd.arg(
-        format!("target/{target}/{}.exe", data.package.name)
-       );
+        if lib {
+            cmd.arg("-l");
+        } else {
+            cmd.arg("-o");
+        }
+
+        cmd.arg(
+            format!("target/{target}/{}.{ext}", data.package.name)
+        );
 
         let status = cmd.status();
 

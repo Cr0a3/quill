@@ -8,7 +8,7 @@ use crate::print;
 
 #[derive(Serialize, Deserialize)]
 pub struct TemplateData {
-    
+    pub lib: Option<bool>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -23,6 +23,7 @@ pub struct Package {
     pub version: String,
     pub author: String,
     pub description: String,
+    pub lib: Option<bool>,
 }
 
 #[derive(Iterable, Serialize, Deserialize)]
@@ -49,7 +50,7 @@ pub fn get_value(path: &str) -> toml::Value {
     data
 }
 
-pub fn load_tml_cfg(path: &str) -> Data {
+pub fn load_tml_cfg<T: for<'de> serde::Deserialize<'de>>(path: &str) -> T {
     let contents = match fs::read_to_string(path) {
         Ok(c) => {c}
         Err(e) => {
@@ -58,7 +59,7 @@ pub fn load_tml_cfg(path: &str) -> Data {
         }
     };
 
-    let data: Data = match toml::from_str(&contents) {
+    let data: T = match toml::from_str(&contents) {
         Ok(d) => d,
         Err(e) => {
             print::error("E", &format!("couldn't load toml file:\n{}", e));

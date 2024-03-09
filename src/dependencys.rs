@@ -1,4 +1,4 @@
-use std::{env, fmt::format, fs, path::{Path, PathBuf}, process::Command};
+use std::{env, fs, path::{Path, PathBuf}, process::Command};
 use PrintLib::colorize::Colorize;
 use crate::print;
 
@@ -14,7 +14,7 @@ pub fn get_bin_path() -> PathBuf {
     }
 }
 
-pub fn is_installed(name: String) -> bool {
+pub fn is_installed(name: &String) -> bool {
     let binary_path = get_bin_path();
 
     if !setuped() {
@@ -31,8 +31,8 @@ pub fn is_installed(name: String) -> bool {
     }
 }
 
-pub fn compile(name: String, target: String) -> bool {
-    let installed = is_installed(name.clone());
+pub fn compile(name: &String, target: &String) -> bool {
+    let installed = is_installed(&name);
     match installed {
         true => {},
         false => {
@@ -67,11 +67,13 @@ pub fn compile(name: String, target: String) -> bool {
 }
 
 pub fn download(name: String, version: String) -> bool {
-    if is_installed(name) {
+    if is_installed(&name) {
         return true;
     }
 
     print::error("E", "libarys can't be downloaded currently (cpack intern error)");
+
+    println!(" {} {name} v{version}", "Downloaded".bold().color(0, 42, 71));
     
     false
 }
@@ -88,4 +90,23 @@ pub fn setup_dirs() -> bool {
 
 pub fn setuped() -> bool {
     Path::new(&format!("{}/.cache/", get_bin_path().display())).exists()
+}
+
+pub fn copy_libary_build_to_current_target(libary_name: String, target: String) -> bool {
+    let target_path = format!("target/{target}/{libary_name}.dll");
+    let libary_path = format!("{}/.cache/lib_{libary_name}/target/{target}/{libary_name}.dll", get_bin_path().display());
+    
+    if ! Path::new(&libary_path).exists() {
+        print::error("E", &format!("libarys '{libary_name}' build dosn't exists"));
+        return false;
+    }
+
+    match fs::copy(libary_path, target_path) {
+        Ok(_) => {},
+        Err(e) => {
+            print::error("E", &format!("error while copying libary dll: {}", e));
+        },
+    };
+
+    true
 }

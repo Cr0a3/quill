@@ -1,11 +1,11 @@
-use crate::{conf, print};
+use crate::{conf::{self, Data}, print};
 use std::{path::Path, process::Command};
 use PrintLib::colorize::Colorize;
 use crate::runner::build::build;
 
 pub fn run(target: &str) -> Option<bool> {
     // read toml
-    let name = conf::load_tml_cfg("cpack.toml").package.name;
+    let name = conf::load_tml_cfg::<Data>("cpack.toml").package.name;
 
     // filter out compile errors
     let sucess = match build(target) {
