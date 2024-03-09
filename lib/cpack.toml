@@ -1,0 +1,8 @@
+[package]
+name = "lib"
+version = "1.0.0"
+author = "your_name"
+description = "libs epic description"
+lib = true
+
+[dependencies]

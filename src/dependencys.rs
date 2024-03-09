@@ -2,16 +2,22 @@ use std::{env, fs, path::{Path, PathBuf}, process::Command};
 use PrintLib::colorize::Colorize;
 use crate::print;
 
-pub fn get_bin_path() -> PathBuf {
-    match env::current_exe() {
-        Ok(bin_path) => {
-            bin_path
-        }
+pub fn get_exe_path() -> PathBuf {
+    let bin_path = match env::current_exe() {
+        Ok(p) => { p }
         Err(e) => {
             print::error("Ee006", &format!("could not get current path: {}", e));
             return PathBuf::new();
         }
-    }
+    };
+
+    bin_path
+}
+
+pub fn get_bin_path() -> String {
+    let exe_path = get_exe_path();
+    let parent = exe_path.parent().unwrap();
+    format!("{}", parent.display())
 }
 
 pub fn is_installed(name: &String) -> bool {
@@ -21,7 +27,7 @@ pub fn is_installed(name: &String) -> bool {
         setup_dirs();
     }
 
-    let fmt_path = &format!("{}/.cache/lib_{}", binary_path.display(), name);
+    let fmt_path = &format!("{}/.cache/lib_{}", binary_path, name);
     let path = Path::new(fmt_path);
 
     if path.exists() {
@@ -40,7 +46,7 @@ pub fn compile(name: &String, target: &String) -> bool {
         }
     };
 
-    let lib_path = format!("{}/.cache/lib_{}/", get_bin_path().display(), name);
+    let lib_path = format!("{}/.cache/lib_{}/", get_bin_path(), name);
 
     let mut cmd = Command::new("cpack");
     cmd.current_dir(lib_path);
@@ -79,7 +85,10 @@ pub fn download(name: String, version: String) -> bool {
 }
 
 pub fn setup_dirs() -> bool {
-    match fs::create_dir(format!("{}/.cache/", get_bin_path().display())) {
+    let path = format!("{}/.cache/", get_bin_path());
+    println!("path: {}", path);
+
+    match fs::create_dir(path) {
         Ok(_) => true,
         Err(e) => {
             print::error("E", &format!("error while creating .cache: {}", e));
@@ -89,12 +98,12 @@ pub fn setup_dirs() -> bool {
 }
 
 pub fn setuped() -> bool {
-    Path::new(&format!("{}/.cache/", get_bin_path().display())).exists()
+    Path::new(&format!("{}/.cache/", get_bin_path())).exists()
 }
 
 pub fn copy_libary_build_to_current_target(libary_name: String, target: String) -> bool {
     let target_path = format!("target/{target}/{libary_name}.dll");
-    let libary_path = format!("{}/.cache/lib_{libary_name}/target/{target}/{libary_name}.dll", get_bin_path().display());
+    let libary_path = format!("{}/.cache/lib_{libary_name}/target/{target}/{libary_name}.dll", get_bin_path());
     
     if ! Path::new(&libary_path).exists() {
         print::error("E", &format!("libarys '{libary_name}' build dosn't exists"));

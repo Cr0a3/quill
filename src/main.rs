@@ -83,7 +83,7 @@ pub fn main() {
                     let lib: bool = args.contains(&"--lib".to_string());
 
                     let mut template: &str = match lib {
-                        true => "lib_std",
+                        true => "std_lib",
                         false => "std"
                     };
 

@@ -1,5 +1,5 @@
 use crate::{conf::{self, parse_dependencys, Data}, dependencys::*, print};
-use std::{fs, process::Command};
+use std::{fmt::format, fs, process::Command};
 use PrintLib::colorize::Colorize;
 
 pub fn build(target: &str) -> Result<bool, std::io::Error> {
@@ -44,14 +44,14 @@ pub fn build(target: &str) -> Result<bool, std::io::Error> {
 
     //print dependencies
     let deps = parse_dependencys("cpack.toml");
-    for (name, version) in deps {
+    for (name, version) in &deps {
         let installed = is_installed(&name);
         if installed {
             if !compile(&name, &target.into()) {
                 return Ok(false);
             }
         } else {
-            if download(name.clone(), version) {
+            if download(name.clone(), version.into()) {
                 if !compile(&name, &target.into()) {
                     return Ok(false);
                 }
@@ -61,7 +61,7 @@ pub fn build(target: &str) -> Result<bool, std::io::Error> {
         }
 
         // copy libary dll to current folder
-        copy_libary_build_to_current_target(name, target.into());
+        copy_libary_build_to_current_target(name.into(), target.into());
     }
 
     // compile every file
@@ -99,9 +99,9 @@ pub fn build(target: &str) -> Result<bool, std::io::Error> {
     }
 
     // link together
-    let lib = false;
+    let lib = conf::load_tml_cfg::<Data>("cpack.toml").package.lib.unwrap_or(false);
 
-    let ext = match lib {false => "exe", true => "lib" };
+    let ext = match lib {false => "exe", true => "dll" };
 
     if sucess {
         let bins = fs::read_dir(format!("target/{target}/objs/"))?;
@@ -114,15 +114,21 @@ pub fn build(target: &str) -> Result<bool, std::io::Error> {
             cmd.arg(path);
         }
 
-        if lib {
-            cmd.arg("-l");
-        } else {
-            cmd.arg("-o");
-        }
-
+        cmd.arg("-o");
         cmd.arg(
             format!("target/{target}/{}.{ext}", data.package.name)
         );
+
+        if lib {
+            cmd.arg("-mdll");
+        }
+
+        for (name, version) in deps {
+            cmd.arg("-l");
+            cmd.arg(
+                format!("target/{target}/{name}.dll")
+            );
+        }
 
         let status = cmd.status();
 
