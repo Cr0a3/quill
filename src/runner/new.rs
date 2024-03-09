@@ -1,4 +1,4 @@
-use crate::{print, conf::{self}};
+use crate::{conf::{self, Dependencies, Package}, print};
 use std::{env, fs, io::{self, Write}, path::Path};
 use PrintLib::colorize::Colorize;
 
@@ -59,15 +59,31 @@ pub fn new(name: &str, libary: bool, template: &str) -> std::io::Result<()>{
     fs::rename(template, name)?;
 
     // rewrite config
-    let path_str = format!("{}/cpack.toml", name);
-    let path = Path::new(&path_str);
+    let template_deps = conf::parse_dependencys(&format!("{}/template.toml", name));
 
-    let mut buf = conf::read_file(&path_str)?;
-    buf = buf.replace("{name}", name);
+    let data = conf::Data {
+        package: Package {
+            name: name.into(),
+            version: "1.0.0".into(),
+            author: "your_name".into(),
+            description: format!("{}s epic description", name),
+        },
+        dependencies: Dependencies { },
+    };
 
-    // rewriting file
+    let mut toml_string = match toml::to_string(&data) {
+        Ok(s) => s,
+        Err(e) => {
+            print::error("E", &format!("error while converting example conf to string: {}", e.to_string()));
+            String::new()
+        },
+    };
 
-    let mut file = match fs::File::open(path) {
+    for (name, version) in template_deps {
+        toml_string.push_str(&format!("{} = {}", name, version));
+    }
+
+    let mut file = match fs::File::create(Path::new(&format!("{}/cpack.toml", name))) {
         Ok(f) => f,
         Err(e) => {
             print::error("E", &format!("error while opening conf file: {}", e));
@@ -75,14 +91,22 @@ pub fn new(name: &str, libary: bool, template: &str) -> std::io::Result<()>{
         },
     };
 
-    match file.write(buf.as_bytes()) {
+    match file.write(toml_string.as_bytes()) {
         Ok(_) => {},
         Err(e) => {
             print::error("E", &format!("error while writing conf file: {}", e));
             return Ok(());
         },
     };
-    file.flush()?;
+
+    // remove template.toml
+    match fs::remove_file(Path::new(&format!("{}/template.toml", name))) {
+        Ok(_) => {},
+        Err(e) => {
+            print::error("E", &format!("error while removing template conf file: {}", e));
+            return Ok(());
+        },
+    };
     
     println!("  - {} {}: '{name}'", "Created".color(0, 42, 71).bold(), match libary { true => "libary", false => "package" } );
 

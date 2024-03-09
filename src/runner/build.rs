@@ -1,4 +1,4 @@
-use crate::{conf::{self}, print};
+use crate::{conf::{self, parse_dependencys}, print};
 use std::{fs, process::Command};
 use PrintLib::colorize::Colorize;
 
@@ -40,6 +40,12 @@ pub fn build(target: &str) -> Result<bool, std::io::Error> {
              &format!("Error while creating target folder {}", err.to_string())
             );
         return Ok(false);
+    }
+
+    //print dependencies
+    let deps = parse_dependencys("cpack.toml");
+    for (name, version) in deps {
+        println!(" - {}: {} {}", "Dependency".bold(), name, version);
     }
 
     // compile every file
