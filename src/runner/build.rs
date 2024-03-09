@@ -114,6 +114,14 @@ pub fn build(target: &str) -> Result<bool, std::io::Error> {
             cmd.arg(path);
         }
 
+        cmd.arg(format!("-Ltarget/{target}"));
+
+        for (name, _) in deps {
+            cmd.arg(
+                format!("-l{name}")
+            );
+        }
+
         cmd.arg("-o");
         cmd.arg(
             format!("target/{target}/{}.{ext}", data.package.name)
@@ -123,12 +131,14 @@ pub fn build(target: &str) -> Result<bool, std::io::Error> {
             cmd.arg("-mdll");
         }
 
-        for (name, version) in deps {
-            cmd.arg("-l");
-            cmd.arg(
-                format!("target/{target}/{name}.dll")
-            );
+        if !lib { cmd.arg("-lstdc++"); }
+
+        print!("call: ld");
+
+        for arg in cmd.get_args() {
+            print!(" {}", arg.to_str().unwrap());
         }
+        println!();
 
         let status = cmd.status();
 
