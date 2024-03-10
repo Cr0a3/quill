@@ -1,8 +1,0 @@
-[package]
-name = "app"
-version = "1.0.0"
-author = "your_name"
-description = "apps epic description"
-
-[dependencies]
-lib = "1"

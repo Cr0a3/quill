@@ -8,7 +8,8 @@ mod consts;
 
 use crate::runner::*;
 
-pub fn main() {
+#[tokio::main]
+async fn main() {
     let  mut args: Vec<String> = env::args().collect();
 
     let mut options: Vec<String>  = vec!();
@@ -36,7 +37,7 @@ pub fn main() {
                 }
 
                 "build" => {
-                    let _ = build::build("debug", options.contains(&"--noout".to_string()));
+                    let _ = build::build("debug", options.contains(&"--noout".to_string())).await;
                 }
 
                 "clean" => {
@@ -48,7 +49,7 @@ pub fn main() {
                 }
 
                 "run" => {
-                    run::run("debug", options.contains(&"--noout".to_string()) );
+                    run::run("debug", options.contains(&"--noout".to_string())).await;
                 }
 
                 "publish" => {
@@ -79,7 +80,7 @@ pub fn main() {
                 }
 
                 "build" => {
-                    let _ = build::build(opt.as_str(), options.contains(&"--noout".to_string()));
+                    let _ = build::build(opt.as_str(), options.contains(&"--noout".to_string())).await;
                 }
 
                 "new" => {
@@ -101,7 +102,7 @@ pub fn main() {
                 }
 
                 "run" => {
-                    run::run(opt.as_str(), options.contains(&"--noout".to_string()) );
+                    run::run(opt.as_str(), options.contains(&"--noout".to_string()) ).await;
                 }
 
                 "add" => {

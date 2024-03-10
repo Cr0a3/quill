@@ -1,4 +1,4 @@
-use crate::{conf::{self, parse_dependencys, Data}, dependencys::*, print};
+use crate::{conf::{self, parse_dependencys, Data}, consts, dependencys::*, print};
 use std::{fs, process::Command};
 use PrintLib::colorize::Colorize;
 
@@ -103,7 +103,7 @@ pub async fn build(target: &str, noout: bool) -> Result<bool, std::io::Error> {
     // link together
     let lib = conf::load_tml_cfg::<Data>("cpack.toml").package.lib.unwrap_or(false);
 
-    let ext = match lib {false => "exe", true => "dll" };
+    let ext = match lib {false => consts::BINARY_EXT, true => consts::LIBARY_EXT };
     let prog = match lib {false => "g++", true => "ld" };
 
     if sucess {
@@ -131,10 +131,10 @@ pub async fn build(target: &str, noout: bool) -> Result<bool, std::io::Error> {
         );
 
         if lib {
-            cmd.arg("--dll");
+            cmd.arg(consts::LIBARY_LD_FLAG);
+        } else {
+            cmd.arg("-lstdc++");
         }
-
-        cmd.arg("-lstdc++");
 
         let status = cmd.status();
 

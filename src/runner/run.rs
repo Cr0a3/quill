@@ -1,4 +1,4 @@
-use crate::{conf::{self, Data}, print};
+use crate::{conf::{self, Data}, consts, print};
 use std::{path::Path, process::Command};
 use PrintLib::colorize::Colorize;
 use crate::runner::build::build;
@@ -21,7 +21,7 @@ pub async fn run(target: &str, noout: bool) -> Option<bool> {
     }
     
     // now there are no compile errors
-    let fmt_path = format!("target/{target}/{}.exe", name);
+    let fmt_path = format!("target/{target}/{}.{}", name, consts::BINARY_EXT);
     let bin = Path::new( &fmt_path );
 
     if !bin.exists() {

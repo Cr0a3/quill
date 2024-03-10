@@ -1,4 +1,5 @@
-use reqwest::*;
+use serde_json::{json, Value};
+use reqwest::{self, Client};
 use serde::{Serialize, Deserialize};
 use crate::print;
 
@@ -10,7 +11,7 @@ struct ApiCall {
 }
 
 pub struct Api {
-    pub domain: String,    
+    pub domain: String,  
 }
 
 impl Api {
@@ -20,19 +21,22 @@ impl Api {
         }
     }
 
-    pub async fn call(&self, json: ApiCall) -> Result<ApiCall, reqwest::Error> {
-        let res = Client::new().post(&self.domain).json(&json).send().await?;
-        res.json().await?
+    pub async fn call(&self, json: Value) -> Result<Value, reqwest::Error> {
+        let client = Client::new();
+        let res = client.post(&self.domain).json(&json).send().await?;
+        let answer: Value = res.json().await?;
+
+        Ok(answer)
     }
 
     pub async fn get_download_link(&self, name: &String, version: &String) -> String {
-        let result = self.call(ApiCall {
-            func: "getlink".into(),
-            opt1: Some(name.into()),
-            opt2: Some(version.into()),
-        }).await;
+        let result = self.call(json!({
+            "func": "download",
+            "name": name,
+            "version": version,
+        })).await;
 
-        let json: ApiCall =  match result {
+        let json: Value =  match result {
             Ok(j) => j,
             Err(e) => {
                 print::error("E", &format!("error while calling the api: {}", e));
@@ -40,7 +44,12 @@ impl Api {
             },
         };
 
-        let link = json.opt1.expect("error while unwraping download link");
+        let link = json["link"].to_string();
+
+        if link == "error" {
+            return json["error"].to_string()
+        }
+        
         link
 
     }
