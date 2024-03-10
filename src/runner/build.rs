@@ -1,12 +1,12 @@
 use crate::{conf::{self, parse_dependencys, Data}, dependencys::*, print};
-use std::{fmt::format, fs, process::Command};
+use std::{fs, process::Command};
 use PrintLib::colorize::Colorize;
 
-pub fn build(target: &str) -> Result<bool, std::io::Error> {
+pub fn build(target: &str, noout: bool) -> Result<bool, std::io::Error> {
     let data = conf::load_tml_cfg::<Data>("cpack.toml");
-    println!("{} | {}", 
+    if !noout { println!("{} | {}", 
     "Building ".green() + &data.package.name.green(), 
-    "Target: ".color(0, 42, 71) + &target.color(0, 42, 71));
+    "Target: ".color(0, 42, 71) + &target.color(0, 42, 71)); }
 
     let mut args: Vec<String> = vec!["-Iinclude".into(), "-Isrc".into(), "-c".into()];
 
@@ -61,7 +61,7 @@ pub fn build(target: &str) -> Result<bool, std::io::Error> {
         }
 
         // copy libary dll to current folder
-        copy_libary_build_to_current_target(name.into(), target.into());
+        let _ = copy_libary_build_to_current_target(name.into(), target.into());
     }
 
     // compile every file
@@ -75,13 +75,15 @@ pub fn build(target: &str) -> Result<bool, std::io::Error> {
         let mut cmd = Command::new("g++");
         cmd.current_dir(".");
         
-        cmd.args(args.clone());
+        cmd.arg("-c");
 
         cmd.arg(format!("{}", name));
         cmd.arg("-o");
         cmd.arg(
             format!("target/{}/objs/{}.o", target, file_name)
         );
+        cmd.arg("-Iinclude");
+        cmd.arg("-Isrc");
 
         let status = cmd.status();
 
@@ -102,11 +104,12 @@ pub fn build(target: &str) -> Result<bool, std::io::Error> {
     let lib = conf::load_tml_cfg::<Data>("cpack.toml").package.lib.unwrap_or(false);
 
     let ext = match lib {false => "exe", true => "dll" };
+    let prog = match lib {false => "g++", true => "ld" };
 
     if sucess {
         let bins = fs::read_dir(format!("target/{target}/objs/"))?;
 
-        let mut cmd = Command::new("g++");
+        let mut cmd = Command::new(prog);
         cmd.current_dir(".");
 
         for file in bins {
@@ -128,17 +131,10 @@ pub fn build(target: &str) -> Result<bool, std::io::Error> {
         );
 
         if lib {
-            cmd.arg("-mdll");
+            cmd.arg("--dll");
         }
 
-        if !lib { cmd.arg("-lstdc++"); }
-
-        print!("call: ld");
-
-        for arg in cmd.get_args() {
-            print!(" {}", arg.to_str().unwrap());
-        }
-        println!();
+        cmd.arg("-lstdc++");
 
         let status = cmd.status();
 
@@ -154,7 +150,7 @@ pub fn build(target: &str) -> Result<bool, std::io::Error> {
             },
         }
     } else {
-        print!("{}", "Build error".bold().red());
+        println!("  {} error", "Build".bold().red());
     }
 
     Ok(sucess)

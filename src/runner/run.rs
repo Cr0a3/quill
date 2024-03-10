@@ -3,12 +3,12 @@ use std::{path::Path, process::Command};
 use PrintLib::colorize::Colorize;
 use crate::runner::build::build;
 
-pub fn run(target: &str) -> Option<bool> {
+pub fn run(target: &str, noout: bool) -> Option<bool> {
     // read toml
     let name = conf::load_tml_cfg::<Data>("cpack.toml").package.name;
 
     // filter out compile errors
-    let sucess = match build(target) {
+    let sucess = match build(target, noout) {
         Ok(b) => b,
         Err(e) => {
             print::error("E", &format!("error while compiling: {}", e.to_string()));
@@ -34,10 +34,10 @@ pub fn run(target: &str) -> Option<bool> {
 
     match status {
         Ok(s) => {
-            if s.success() {
+            if s.success() && !noout {
                 println!("\n  - {} {}", "Program exited sucessfull with code".bold().green(), s.code()?);
             } else {
-                println!("\n  - {} {}", "Program didn't exit sucessfull with code".bold().red(), s.code()?);
+                if !noout { println!("\n  - {} {}", "Program didn't exit sucessfull with code".bold().red(), s.code()?); }
             }
             Some(true)
         },

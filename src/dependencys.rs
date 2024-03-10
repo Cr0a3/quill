@@ -51,6 +51,8 @@ pub fn compile(name: &String, target: &String) -> bool {
     let mut cmd = Command::new("cpack");
     cmd.current_dir(lib_path);
 
+    cmd.arg("--noout");
+
     cmd.arg("build");
     cmd.arg(target);
 
@@ -104,7 +106,7 @@ pub fn setuped() -> bool {
 pub fn copy_libary_build_to_current_target(libary_name: String, target: String) -> bool {
     let target_path = format!("target/{target}/{libary_name}.dll");
     let libary_path = format!("{}/.cache/lib_{libary_name}/target/{target}/{libary_name}.dll", get_bin_path());
-    
+
     if ! Path::new(&libary_path).exists() {
         print::error("E", &format!("libarys '{libary_name}' build dosn't exists"));
         return false;

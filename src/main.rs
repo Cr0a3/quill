@@ -8,14 +8,16 @@ mod dependencys;
 use crate::runner::*;
 
 pub fn main() {
-    let args: Vec<String> = env::args().collect();
+    let  mut args: Vec<String> = env::args().collect();
 
     let mut options: Vec<String>  = vec!();
-
+    let mut index = 0;
     for arg in args.clone() {
         if arg.chars().next() == Some('-') {
             options.push(arg);
+            args.remove(index);
         }
+        index += 1;
     }
 
     match args.len() - 1 { // - 1 for the actual args
@@ -33,7 +35,7 @@ pub fn main() {
                 }
 
                 "build" => {
-                    let _ = build::build("debug");
+                    let _ = build::build("debug", options.contains(&"--noout".to_string()));
                 }
 
                 "clean" => {
@@ -45,7 +47,7 @@ pub fn main() {
                 }
 
                 "run" => {
-                    run::run("debug");
+                    run::run("debug", options.contains(&"--noout".to_string()) );
                 }
 
                 "publish" => {
@@ -76,11 +78,11 @@ pub fn main() {
                 }
 
                 "build" => {
-                    let _ = build::build(opt.as_str());
+                    let _ = build::build(opt.as_str(), options.contains(&"--noout".to_string()));
                 }
 
                 "new" => {
-                    let lib: bool = args.contains(&"--lib".to_string());
+                    let lib: bool = options.contains(&"--lib".to_string());
 
                     let mut template: &str = match lib {
                         true => "std_lib",
@@ -98,7 +100,7 @@ pub fn main() {
                 }
 
                 "run" => {
-                    run::run(opt.as_str());
+                    run::run(opt.as_str(), options.contains(&"--noout".to_string()) );
                 }
 
                 "add" => {
