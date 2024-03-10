@@ -4,6 +4,7 @@ mod runner;
 mod api;
 mod conf;
 mod dependencys;
+mod consts;
 
 use crate::runner::*;
 

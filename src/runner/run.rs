@@ -3,12 +3,12 @@ use std::{path::Path, process::Command};
 use PrintLib::colorize::Colorize;
 use crate::runner::build::build;
 
-pub fn run(target: &str, noout: bool) -> Option<bool> {
+pub async fn run(target: &str, noout: bool) -> Option<bool> {
     // read toml
     let name = conf::load_tml_cfg::<Data>("cpack.toml").package.name;
 
     // filter out compile errors
-    let sucess = match build(target, noout) {
+    let sucess = match build(target, noout).await {
         Ok(b) => b,
         Err(e) => {
             print::error("E", &format!("error while compiling: {}", e.to_string()));

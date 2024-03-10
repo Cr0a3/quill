@@ -2,7 +2,7 @@ use crate::{conf::{self, parse_dependencys, Data}, dependencys::*, print};
 use std::{fs, process::Command};
 use PrintLib::colorize::Colorize;
 
-pub fn build(target: &str, noout: bool) -> Result<bool, std::io::Error> {
+pub async fn build(target: &str, noout: bool) -> Result<bool, std::io::Error> {
     let data = conf::load_tml_cfg::<Data>("cpack.toml");
     if !noout { println!("{} | {}", 
     "Building ".green() + &data.package.name.green(), 
@@ -51,7 +51,7 @@ pub fn build(target: &str, noout: bool) -> Result<bool, std::io::Error> {
                 return Ok(false);
             }
         } else {
-            if download(name.clone(), version.into()) {
+            if download(name.clone(), version.into()).await {
                 if !compile(&name, &target.into()) {
                     return Ok(false);
                 }

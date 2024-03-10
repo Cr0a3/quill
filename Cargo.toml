@@ -1,14 +1,15 @@
 [package]
 name = "cpack"
 author = "cr0a3"
-description = "Simple package manager for the c++ language"
-version = "0.1.0"
+description = "Package manager for the c++ language"
+version = "1.0.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 PrintLib = "1.5.1"
+reqwest = { version = "0.11.25", features=["json"] }
 serde = { version = "1.0.197", features=["derive"] }
 serde_json = "1.0.114"
 struct_iterable = "0.1.1"

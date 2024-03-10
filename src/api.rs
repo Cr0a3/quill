@@ -1,41 +1,47 @@
-/*use std::error;
-use std::io::{self, Read, Write};
-use std::net::TcpStream;
-use serde_json::{Value};
+use reqwest::*;
 use serde::{Serialize, Deserialize};
+use crate::print;
 
-// CONFIG
-static DOMAIN: &str = "127.0.0.1";
-static PORT: &str = "7142";
-// CONFIG END
-
-#[derive(Serialize, Deserialize)]
-pub struct ApiCall<'a> {
-    pub api_func: String,
-    pub api_func_opt: &'a [u8],
+#[derive(Debug, Serialize, Deserialize)]
+struct ApiCall {
+    func: String,
+    opt1: Option<String>,
+    opt2: Option<String>,
 }
 
-impl<'a> ApiCall<'a> {
-    pub fn new(_func: String, _func_opt: &'a [u8]) -> Self {
+pub struct Api {
+    pub domain: String,    
+}
+
+impl Api {
+    pub fn new(domain: &str) -> Self {
         Self {
-            api_func: _func,
-            api_func_opt: _func_opt,
+            domain: domain.into()
         }
     }
 
-    pub fn call(&self) -> Result<Value, std::error::Error> {
-        let mut stream = TcpStream::connect(format!("{}:{}", DOMAIN, PORT))?;
+    pub async fn call(&self, json: ApiCall) -> Result<ApiCall, reqwest::Error> {
+        let res = Client::new().post(&self.domain).json(&json).send().await?;
+        res.json().await?
+    }
 
-        let json = serde_json::to_string(self)?;
+    pub async fn get_download_link(&self, name: &String, version: &String) -> String {
+        let result = self.call(ApiCall {
+            func: "getlink".into(),
+            opt1: Some(name.into()),
+            opt2: Some(version.into()),
+        }).await;
 
-        stream.write_all(json.as_bytes())?;
-    
-        let mut buf = String::new();
-        stream.read_to_string(&mut buf)?;
-    
-        let v: Value = serde_json::from_str(&buf)?;
+        let json: ApiCall =  match result {
+            Ok(j) => j,
+            Err(e) => {
+                print::error("E", &format!("error while calling the api: {}", e));
+                return "none".into();
+            },
+        };
 
-        Ok(v)
+        let link = json.opt1.expect("error while unwraping download link");
+        link
+
     }
 }
-*/

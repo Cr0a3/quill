@@ -1,6 +1,6 @@
 use std::{env, fs, path::{Path, PathBuf}, process::Command};
 use PrintLib::colorize::Colorize;
-use crate::print;
+use crate::{api, consts, print};
 
 pub fn get_exe_path() -> PathBuf {
     let bin_path = match env::current_exe() {
@@ -74,16 +74,19 @@ pub fn compile(name: &String, target: &String) -> bool {
     };
 }
 
-pub fn download(name: String, version: String) -> bool {
+pub async fn download(name: String, version: String) -> bool {
     if is_installed(&name) {
-        return true;
+        return false;
     }
 
-    print::error("E", "libarys can't be downloaded currently (cpack intern error)");
+    let api = api::Api::new(consts::DOMAIN);
+    let download_link = api.get_download_link(&name, &version).await;
+
+    println!("Download link: {}", download_link);
 
     println!(" {} {name} v{version}", "Downloaded".bold().color(0, 42, 71));
     
-    false
+    true
 }
 
 pub fn setup_dirs() -> bool {

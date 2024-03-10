@@ -1,0 +1,1 @@
+pub static DOMAIN: &str = "localhost";
