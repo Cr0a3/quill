@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-pub static DOMAIN: &str = "http://localhost:8000/api";
-=======
 pub const DOMAIN: &str = "localhost";
->>>>>>> 4fb64176c6bcd6d4eef5a28430231d15b0091ce4
 
 #[cfg(windows)]
 pub const BINARY_EXT: &str = "exe";
