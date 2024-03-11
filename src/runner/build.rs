@@ -121,7 +121,7 @@ pub async fn build(target: &str, noout: bool) -> Result<bool, std::io::Error> {
 
         for (name, _) in deps {
             cmd.arg(
-                format!("-l{name}")
+                format!("{}{name}{}", consts::LIBARY_LINK_LD_OPT, consts::LIBARY_LINK_LD_OPTI)
             );
         }
 
