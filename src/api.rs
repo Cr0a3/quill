@@ -21,10 +21,10 @@ impl Api {
         }
     }
 
-    pub async fn call(&self, json: Value) -> Result<Value, reqwest::Error> {
+    pub async fn call(&self, json: Value) -> Result<String, reqwest::Error> {
         let client = Client::new();
         let res = client.post(&self.domain).json(&json).send().await?;
-        let answer: Value = res.json().await?;
+        let answer = res.text().await?;
 
         Ok(answer)
     }
@@ -36,7 +36,7 @@ impl Api {
             "version": version,
         })).await;
 
-        let json: Value =  match result {
+        let json =  match result {
             Ok(j) => j,
             Err(e) => {
                 print::error("E", &format!("error while calling the api: {}", e));
@@ -44,12 +44,12 @@ impl Api {
             },
         };
 
-        let link = json["link"].to_string();
+        let link = json; //json["link"].to_string();
 
-        if link == "error" {
+        /*if link == "error" {
             return json["error"].to_string()
-        }
-        
+        }*/
+
         link
 
     }

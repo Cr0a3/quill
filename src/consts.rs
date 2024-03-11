@@ -1,4 +1,4 @@
-pub static DOMAIN: &str = "localhost";
+pub static DOMAIN: &str = "http://localhost:8000/api";
 
 #[cfg(windows)]
 pub static BINARY_EXT: &str = "exe";
