@@ -48,7 +48,7 @@ pub fn compile(name: &String, target: &String) -> bool {
 
     let lib_path = format!("{}/.cache/lib_{}/", get_bin_path(), name);
 
-    let mut cmd = Command::new("cpack");
+    let mut cmd = Command::new(get_exe_path());
     cmd.current_dir(lib_path);
 
     cmd.arg("--noout");
@@ -107,8 +107,8 @@ pub fn setuped() -> bool {
 }
 
 pub fn copy_libary_build_to_current_target(libary_name: String, target: String) -> bool {
-    let target_path = format!("target/{target}/{libary_name}.dll");
-    let libary_path = format!("{}/.cache/lib_{libary_name}/target/{target}/{libary_name}.dll", get_bin_path());
+    let target_path = format!("target/{target}/{libary_name}.{}", consts::LIBARY_EXT);
+    let libary_path = format!("{}/.cache/lib_{libary_name}/target/{target}/{libary_name}.{}", get_bin_path(), consts::LIBARY_EXT);
 
     if ! Path::new(&libary_path).exists() {
         print::error("E", &format!("libarys '{libary_name}' build dosn't exists"));
@@ -118,7 +118,7 @@ pub fn copy_libary_build_to_current_target(libary_name: String, target: String) 
     match fs::copy(libary_path, target_path) {
         Ok(_) => {},
         Err(e) => {
-            print::error("E", &format!("error while copying libary dll: {}", e));
+            print::error("E", &format!("error while copying libary {}: {}", consts::LIBARY_EXT, e));
         },
     };
 
