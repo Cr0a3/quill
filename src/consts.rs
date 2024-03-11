@@ -8,9 +8,9 @@ pub static BINARY_EXT: &str = "out";
 #[cfg(windows)]
 pub static LIBARY_EXT: &str = "dll";
 #[cfg(unix)]
-pub static LIBARY_EXT: &str = "lib";
+pub static LIBARY_EXT: &str = "so";
 
 #[cfg(windows)]
 pub static LIBARY_LD_FLAG: &str = "--dll";
 #[cfg(unix)]
-pub static LIBARY_LD_FLAG: &str = "--lib";
+pub static LIBARY_LD_FLAG: &str = "--shared";
