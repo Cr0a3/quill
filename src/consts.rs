@@ -1,26 +1,26 @@
-pub static DOMAIN: &str = "localhost";
+pub const DOMAIN: &str = "localhost";
 
 #[cfg(windows)]
-pub static BINARY_EXT: &str = "exe";
+pub const BINARY_EXT: &str = "exe";
 #[cfg(unix)]
-pub static BINARY_EXT: &str = "out";
+pub const BINARY_EXT: &str = "out";
 
 #[cfg(windows)]
-pub static LIBARY_EXT: &str = "dll";
+pub const LIBARY_EXT: &str = "dll";
 #[cfg(unix)]
-pub static LIBARY_EXT: &str = "so";
+pub const LIBARY_EXT: &str = "so";
 
 #[cfg(windows)]
-pub static LIBARY_LD_FLAG: &str = "--dll";
+pub const LIBARY_LD_FLAG: &str = "--dll";
 #[cfg(unix)]
-pub static LIBARY_LD_FLAG: &str = "--shared";
+pub const LIBARY_LD_FLAG: &str = "--shared";
 
 #[cfg(windows)]
-pb static LIBARY_LINK_LD_OPT: &str = "-l";
-#[cfg(windows)]
-pb static LIBARY_LINK_LD_OPT: &str = "-l:";
+pub const LIBARY_LINK_LD_OPT: &str = "-l";
+#[cfg(unix)]
+pub const LIBARY_LINK_LD_OPT: &str = "-l:";
 
 #[cfg(windows)]
-pb static LIBARY_LINK_LD_OPTI: &str = "";
-#[cfg(windows)]
-pb static LIBARY_LINK_LD_OPTI: &str = ".so";
+pub const LIBARY_LINK_LD_OPTI: &str = "";
+#[cfg(unix)]
+pub const LIBARY_LINK_LD_OPTI: &str = ".so";
