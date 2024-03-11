@@ -48,7 +48,7 @@ pub fn compile(name: &String, target: &String) -> bool {
 
     let lib_path = format!("{}/.cache/lib_{}/", get_bin_path(), name);
 
-    let mut cmd = Command::new("cpack");
+    let mut cmd = Command::new(get_exe_path());
     cmd.current_dir(lib_path);
 
     cmd.arg("--noout");
