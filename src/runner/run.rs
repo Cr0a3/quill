@@ -5,7 +5,7 @@ use crate::runner::build::build;
 
 pub async fn run(target: &str, noout: bool) -> Option<bool> {
     // read toml
-    let name = conf::load_tml_cfg::<Data>("cpack.toml").package.name;
+    let name = conf::load_tml_cfg::<Data>("quill.toml").package.name;
 
     // filter out compile errors
     let sucess = match build(target, noout).await {

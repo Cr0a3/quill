@@ -1,4 +1,4 @@
-pub const DOMAIN: &str = "localhost";
+pub const DOMAIN: &str = "http://localhost/api.php";
 
 #[cfg(windows)]
 pub const BINARY_EXT: &str = "exe";

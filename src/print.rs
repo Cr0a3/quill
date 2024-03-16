@@ -6,7 +6,7 @@ use PrintLib::colorize::Colorize;
 pub fn help() {
     println!("{}", "C's package manager by Cr0a3".color(0, 42, 71).bold());
     println!();
-    println!("{} {}", "Usage:".underline(), "cpack [OPTIONS] [CMD]".color(0, 42, 71).bold());
+    println!("{} {}", "Usage:".underline(), "quill [OPTIONS] [CMD]".color(0, 42, 71).bold());
     println!();
     println!("{}", "Options:");
     println!("   {}\t {} {}",       "-v, --version".color(59, 4, 105),      "|".color(227, 173, 25),    "Prints version info"                           );
@@ -32,7 +32,7 @@ pub fn help_cmd(cmd: String) {
 }
 
 pub fn version() {
-    println!("Cpack v{}", "1.1".bold());
+    println!("quill v{}", "1.1".bold());
 }
 
 pub fn error(ecode: &str, msg: &str) {

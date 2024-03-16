@@ -207,20 +207,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "06ea2b9bc92be3c2baa9334a323ebca2d6f074ff852cd1d7b11064035cd3868f"
 
 [[package]]
-name = "cpack"
-version = "1.0.0"
-dependencies = [
- "PrintLib",
- "reqwest",
- "serde",
- "serde_json",
- "struct_iterable",
- "tokio",
- "toml",
- "zip",
-]
-
-[[package]]
 name = "cpufeatures"
 version = "0.2.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -847,6 +833,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "quill"
+version = "1.0.0"
+dependencies = [
+ "PrintLib",
+ "reqwest",
+ "semver",
+ "serde",
+ "serde_json",
+ "struct_iterable",
+ "tokio",
+ "toml",
+ "zip",
+]
+
+[[package]]
 name = "quote"
 version = "1.0.35"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -981,6 +982,12 @@ dependencies = [
  "core-foundation-sys",
  "libc",
 ]
+
+[[package]]
+name = "semver"
+version = "1.0.22"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "92d43fe69e652f3df9bdc2b85b2854a0825b86e4fb76bc44d945137d053639ca"
 
 [[package]]
 name = "serde"

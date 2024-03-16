@@ -5,6 +5,7 @@ mod api;
 mod conf;
 mod dependencys;
 mod consts;
+mod utils;
 
 use crate::runner::*;
 
@@ -106,7 +107,7 @@ async fn main() {
                 }
 
                 "add" => {
-                    runner::add(opt);
+                    runner::add(opt).await;
                 }
 
                 _ => {

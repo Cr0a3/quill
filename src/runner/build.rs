@@ -3,7 +3,7 @@ use std::{fs, process::Command};
 use PrintLib::colorize::Colorize;
 
 pub async fn build(target: &str, noout: bool) -> Result<bool, std::io::Error> {
-    let data = conf::load_tml_cfg::<Data>("cpack.toml");
+    let data = conf::load_tml_cfg::<Data>("quill.toml");
     if !noout { println!("{} | {}", 
     "Building ".green() + &data.package.name.green(), 
     "Target: ".color(0, 42, 71) + &target.color(0, 42, 71)); }
@@ -43,16 +43,16 @@ pub async fn build(target: &str, noout: bool) -> Result<bool, std::io::Error> {
     }
 
     //print dependencies
-    let deps = parse_dependencys("cpack.toml");
+    let deps = parse_dependencys("quill.toml");
     for (name, version) in &deps {
-        let installed = is_installed(&name);
+        let installed = is_installed(&name, &version);
         if installed {
-            if !compile(&name, &target.into()) {
+            if !compile(&name, &version, &target.into()) {
                 return Ok(false);
             }
         } else {
-            if download(name.clone(), version.into()).await {
-                if !compile(&name, &target.into()) {
+            if download(name.into(), version.into()).await {
+                if !compile(&name, &version, &target.into()) {
                     return Ok(false);
                 }
             } else {
@@ -61,7 +61,7 @@ pub async fn build(target: &str, noout: bool) -> Result<bool, std::io::Error> {
         }
 
         // copy libary dll to current folder
-        let _ = copy_libary_build_to_current_target(name.into(), target.into());
+        if !copy_libary_build_to_current_target(name.into(), target.into()) { return Ok(false) };
     }
 
     // compile every file
@@ -101,7 +101,7 @@ pub async fn build(target: &str, noout: bool) -> Result<bool, std::io::Error> {
     }
 
     // link together
-    let lib = conf::load_tml_cfg::<Data>("cpack.toml").package.lib.unwrap_or(false);
+    let lib = conf::load_tml_cfg::<Data>("quill.toml").package.lib.unwrap_or(false);
 
     let ext = match lib {false => consts::BINARY_EXT, true => consts::LIBARY_EXT };
     let prog = match lib {false => "g++", true => "ld" };

@@ -1,14 +1,7 @@
-use serde_json::{json, Value};
-use reqwest::{self, Client};
-use serde::{Serialize, Deserialize};
-use crate::print;
+use std::{fs::File, io::{self, Read}};
 
-#[derive(Debug, Serialize, Deserialize)]
-struct ApiCall {
-    func: String,
-    opt1: Option<String>,
-    opt2: Option<String>,
-}
+use reqwest:: Client;
+use crate::print;
 
 pub struct Api {
     pub domain: String,  
@@ -21,36 +14,51 @@ impl Api {
         }
     }
 
-    pub async fn call(&self, json: Value) -> Result<String, reqwest::Error> {
-        let client = Client::new();
-        let res = client.post(&self.domain).json(&json).send().await?;
-        let answer = res.text().await?;
+    pub async fn download(&self, name: &String, version: &String, path: &String) -> Result<bool, reqwest::Error> {
+        let res =  Client::new().post(&format!("{}?func=download", self.domain))
+            .form(&[
+                ("name", name),
+                ("version", version)
+            ]).send().await?;
 
-        Ok(answer)
+        let buf =  res.text().await?;
+
+        if buf.chars().next() == 'e'.into() {
+            print::error("E", &format!("{}", buf));
+            return Ok(false);
+        }
+
+        let mut out = File::create(path).expect("failed to create file");
+        io::copy(&mut buf.as_bytes(), &mut out).expect("failed to copy downloded content");
+
+        Ok(true)
     }
 
-    pub async fn get_download_link(&self, name: &String, version: &String) -> String {
-        let result = self.call(json!({
-            "func": "download",
-            "name": name,
-            "version": version,
-        })).await;
+    pub async fn upload(&self, path: &String) -> Result<bool, reqwest::Error> {
 
-        let json =  match result {
-            Ok(j) => j,
+        let mut file = File::open(path).expect("error while opening file");
+        let mut buf: String = String::new();
+
+        match file.read_to_string(&mut buf) {
+            Ok(_) => {},
             Err(e) => {
-                print::error("E", &format!("error while calling the api: {}", e));
-                return "none".into();
+                print::error("E", &format!("error while reading target file: {}", e));
+                return Ok(false);
             },
         };
 
-        let link = json; //json["link"].to_string();
+        let res =  Client::new().post(&format!("{}?func=upload", self.domain))
+            .form(&[
+                ("vZip", buf)
+            ]).send().await?;
 
-        /*if link == "error" {
-            return json["error"].to_string()
-        }*/
+        let buf =  res.text().await?;
 
-        link
+        if buf.chars().next() == 'e'.into() {
+            print::error("E", &format!("{}", buf));
+            return Ok(false);
+        }
 
+        Ok(true)
     }
 }
