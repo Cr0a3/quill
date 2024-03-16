@@ -61,4 +61,20 @@ impl Api {
 
         Ok(true)
     }
+
+    pub async fn latest(&self, name: &String) -> Result<String, reqwest::Error> {
+        let res =  Client::new().post(&format!("{}?func=latest", self.domain))
+            .form(&[
+                ("name", name),
+            ]).send().await?;
+
+        let buf =  res.text().await?;
+
+        if buf.chars().next() == 'e'.into() {
+            print::error("E", &format!("{}", buf));
+            return Ok(String::new());
+        }
+
+        Ok(buf)
+    }
 }

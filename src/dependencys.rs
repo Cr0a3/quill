@@ -27,17 +27,23 @@ pub fn is_installed(name: &String, version: &String) -> bool {
         setup_dirs();
     }
 
-    let mut fmt_path: String;
-
     if version == &String::new() { // no version
-        println!("any version");
+        let path = format!("{}/.cache/", binary_path); 
+        let starts_with = format!("lib_{name}_"); 
 
-        fmt_path = format!("{}/.cache/lib_{name}_", binary_path); 
+        for entry in fs::read_dir(path).expect("error while reading .cache directory") {
+            let filename = entry.expect("error while getting directory entry of .cache").file_name();
+            let name = filename.to_str().expect("error while casting filename to str");
+            if name.starts_with::<&str>(starts_with.as_str()) {
+                return  true;
+            }
+        }
 
-        return true;
-    } else {
-        fmt_path = format!("{}/.cache/lib_{name}_{version}", binary_path); 
+        return false;
     }
+
+    let fmt_path = format!("{}/.cache/lib_{name}_{version}", binary_path); 
+
     let path = Path::new(&fmt_path);
 
         if path.exists() {
@@ -45,6 +51,22 @@ pub fn is_installed(name: &String, version: &String) -> bool {
         } else {
             return false;
         }
+}
+
+pub fn get_installed_version(name: &String) -> String {
+    let path = format!("{}/.cache/", get_bin_path()); 
+    let starts_with = format!("lib_{name}_"); 
+
+    for entry in fs::read_dir(path).expect("error while reading .cache directory") {
+        let entry = entry.expect("error while getting directory entry of .cache");
+        let filename = entry.file_name();
+        let name = filename.to_str().expect("error while casting filename to str");
+        if name.starts_with::<&str>(starts_with.as_str()) {
+            return format!("{}", entry.path().display());
+        }
+    }
+
+    String::new()
 }
 
 pub fn compile(name: &String, version: &String, target: &String) -> bool {
@@ -56,7 +78,13 @@ pub fn compile(name: &String, version: &String, target: &String) -> bool {
         }
     };
 
-    let lib_path = format!("{}/.cache/lib_{name}_{version}/", get_bin_path());
+    let installed_version: String;
+
+    if version == &String::new() { 
+        installed_version = get_installed_version(&name);
+    } else { installed_version = version.to_string(); }
+ 
+    let lib_path = format!("{}/.cache/lib_{name}_{installed_version}/", get_bin_path());
 
     let mut cmd = Command::new(get_exe_path());
     cmd.current_dir(lib_path);
@@ -165,12 +193,21 @@ pub fn setuped() -> bool {
     Path::new(&format!("{}/.cache/", get_bin_path())).exists()
 }
 
-pub fn copy_libary_build_to_current_target(libary_name: String, target: String) -> bool {
-    let target_path = format!("target/{target}/{libary_name}.{}", consts::LIBARY_EXT);
-    let libary_path = format!("{}/.cache/lib_{libary_name}/target/{target}/{libary_name}.{}", get_bin_path(), consts::LIBARY_EXT);
+pub fn copy_libary_build_to_current_target(name: String, version: String, target: String) -> bool {
+
+    if !is_installed(&name, &version) { return false; }
+
+    let installed_version: String;
+
+    if version == String::new() { 
+        installed_version = get_installed_version(&name);
+    } else { installed_version = version; }
+
+    let target_path = format!("target/{target}/{name}.{}", consts::LIBARY_EXT);
+    let libary_path = format!("{}/.cache/lib_{name}_{installed_version}/target/{target}/{name}.{}", get_bin_path(), consts::LIBARY_EXT);
 
     if ! Path::new(&libary_path).exists() {
-        print::error("E", &format!("libarys '{libary_name}' build dosn't exists"));
+        print::error("E", &format!("libarys '{name}' build dosn't exists"));
         return false;
     }
 
@@ -185,12 +222,40 @@ pub fn copy_libary_build_to_current_target(libary_name: String, target: String) 
 }
 
 pub fn copy_lib_include_to_current_package(name: &String, version: &String) -> bool {
-    false
+    let installed_version: String;
+
+    if version == &String::new() { 
+        installed_version = get_installed_version(&name);
+    } else { installed_version = version.to_string(); }
+
+    let target_path = format!("include/{name}/");
+    let libary_path = format!("{}/.cache/lib_{name}_{installed_version}/include", get_bin_path());
+
+    if ! Path::new(&libary_path).exists() {
+        print::error("E", &format!("libarys '{name}' has no include directory dosn't exists"));
+        return false;
+    }
+
+    match copy_dir::copy_dir(libary_path, target_path) {
+        Ok(_) => {},
+        Err(e) => {
+            print::error("E", &format!("error while copying libary {}: {}", consts::LIBARY_EXT, e));
+            return false;
+        },
+    };
+
+    true
 }
 
 pub fn add_lib_to_current_conf(name: &String, version: &String) -> bool {
-    if conf::parse_dependencys("./quill.toml").contains_key(name) { // dependency allready added to conf
-        return false;
+    let conf = conf::parse_dependencys("./quill.toml");
+
+    if conf.contains_key(name) { // dependency allready added to conf
+        let key_version = conf.get(name);
+
+        if key_version == Some(version) { // version allready added
+            return false;
+        }
     }
 
     let mut file  = match OpenOptions::new().append(true).open("./quill.toml") {

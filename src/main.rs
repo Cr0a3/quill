@@ -54,7 +54,7 @@ async fn main() {
                 }
 
                 "publish" => {
-                    runner::publish();
+                    runner::publish().await;
                 }
 
                 "add" => {

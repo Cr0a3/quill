@@ -61,7 +61,7 @@ pub async fn build(target: &str, noout: bool) -> Result<bool, std::io::Error> {
         }
 
         // copy libary dll to current folder
-        if !copy_libary_build_to_current_target(name.into(), target.into()) { return Ok(false) };
+        if !copy_libary_build_to_current_target(name.into(), version.into(), target.into()) { return Ok(false) };
     }
 
     // compile every file

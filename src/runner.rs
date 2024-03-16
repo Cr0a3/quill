@@ -3,7 +3,6 @@ pub mod clean;
 pub mod new;
 pub mod run;
 use crate::{api::Api, conf::{self, Data}, consts, dependencys::*, print, utils};
-use semver::VersionReq;
 
 pub async fn publish() -> bool {
     // read toml
@@ -42,20 +41,31 @@ pub async fn publish() -> bool {
 
 pub async fn add(name: String) -> bool {
 
-    if name.contains("=") {
-        let version_str = name.split_once("=").expect("error while parsing version (runner.rs/26)").0;
+    let version: String;
 
+    if name.contains("=") {
+        version = name.split_once("=").expect("error while parsing version (runner.rs/26)").0.into();
+    } else {
+        let api = Api::new(consts::DOMAIN);
+
+        version = match api.latest(&name).await {
+            Ok(s) => { s },
+            Err(e) => {
+                print::error("E", &format!("cann't get latest version of {name}: {}", e));
+                return false;
+            },
+        };
     }
 
     if name.contains(".zip") {
         if !install_lib_from_zip(&name) { return false; };
     } else {
-        if !is_installed(&name, &String::new()) {
-            if !download(name.clone(), "latest".into()).await { return false; };
+        if !is_installed(&name, &version) {
+            if !download(name.clone(), version.clone()).await { return false; };
         }
     }
 
-    if !add_lib_to_current_conf(&name, &String::new()) { return false };
+    if !add_lib_to_current_conf(&name, &version) { return false };
 
-    copy_lib_include_to_current_package(&name,  &String::new())
+    copy_lib_include_to_current_package(&name,  &version)
 }
