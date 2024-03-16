@@ -1,4 +1,4 @@
-use std::{fs::File, io::{self, Read}};
+use std::{fs::File, io};
 
 use reqwest:: Client;
 use crate::print;
@@ -37,20 +37,18 @@ impl Api {
     pub async fn upload(&self, path: &String) -> Result<bool, reqwest::Error> {
 
         let mut file = File::open(path).expect("error while opening file");
-        let mut buf: String = String::new();
+        let mut buf = vec![];
 
-        match file.read_to_string(&mut buf) {
+        match io::Read::read_to_end(&mut file, &mut buf) {
             Ok(_) => {},
             Err(e) => {
-                print::error("E", &format!("error while reading target file: {}", e));
+                print::error("E", &format!("error while reading file to upload: {}", e));
                 return Ok(false);
             },
         };
 
         let res =  Client::new().post(&format!("{}?func=upload", self.domain))
-            .form(&[
-                ("vZip", buf)
-            ]).send().await?;
+            .body(buf).send().await?;
 
         let buf =  res.text().await?;
 

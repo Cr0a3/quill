@@ -2,21 +2,34 @@ pub mod build;
 pub mod clean;
 pub mod new;
 pub mod run;
+use std::fs;
+
 use crate::{api::Api, conf::{self, Data}, consts, dependencys::*, print, utils};
+use PrintLib::colorize::Colorize;
 
 pub async fn publish() -> bool {
     // read toml
     let package = conf::load_tml_cfg::<Data>("quill.toml").package;
     let name = package.name;
     let version = package.version;
+    let lib = package.lib.unwrap_or(false);
+    
+    println!("{}",  "Publishing ".green() + &name.green());
 
-    if package.lib.unwrap_or(false) { return false; }
+    if !lib {
+        println!("{}", lib);
+
+        print::error("E", "current package needs to be a libary");
+        return false; 
+    }
 
     // check if it compiles correctly
-    if !compile(&name, &version, &"release".to_string()) { return false; }
+    if !build::build(&"release".to_string(), false).await.expect("error while building") { return false; }
+
+    let _ = fs::remove_dir_all("target");
 
     // package to zip
-    let outpath = format!("target/{name}_{version}.zip");
+    let outpath = format!("{name}_{version}.zip");
 
     match utils::zip(&outpath, &".".into()) {
         Ok(_) => {},
@@ -35,6 +48,8 @@ pub async fn publish() -> bool {
             print::error("E", &format!("couldn't upload: {}", e));
         },
     };
+
+    print!("after publishing");
 
     false
 }

@@ -65,7 +65,11 @@ pub fn zip(outpath: &String, dir: &String) -> io::Result<()> {
             zip.add_directory(fmt, Default::default())?;
         } else {
             zip.start_file(fmt, options)?;
-            zip.write_all(fs::read_to_string(path)?.as_bytes())?;
+            let mut buf = vec![];
+
+            io::Read::read_to_end(&mut File::open(path)?, &mut buf)?;
+
+            zip.write_all(&buf)?;
         }
     }
 

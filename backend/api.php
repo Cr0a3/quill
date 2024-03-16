@@ -15,9 +15,15 @@ if ( isset( $_GET["func"] ) ) {
     }
 
     else if ( $func == "publish" ) {
+        $data = file_get_contents('php://input');
+
+        echo "publishing";
+    }
+
+    else if ( $func == "latest" ) {
         $name = $_POST["name"];
 
-        echo "publishing $name";
+        echo "getting latest of $name";
     }
 
     else if ( $func == "view" ) {

@@ -1,0 +1,8 @@
+[package]
+name = "testlib"
+version = "1.0.0"
+author = "your_name"
+description = "testlibs epic description"
+lib = true
+
+[dependencies]
