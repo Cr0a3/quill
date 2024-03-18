@@ -4,7 +4,7 @@ use PrintLib::colorize::Colorize;
 
 pub fn new(name: &str, libary: bool, template: &str) -> std::io::Result<()>{
     let current_dir = env::current_dir()?;
-    let path_str =  format!("{}/templates/{}.zip", current_dir.as_os_str().to_str().expect("couldn't get current dir"), template);
+    let path_str =  format!("{}/.cache/templates/{}.zip", current_dir.as_os_str().to_str().expect("couldn't get current dir"), template);
     
     let path = Path::new(&path_str);
 

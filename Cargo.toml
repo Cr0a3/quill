@@ -8,7 +8,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-PrintLib = "1.5.1"
+PrintLib = "1.5.2"
 copy_dir = "0.1.3"
 reqwest = { version = "0.11.25", features=["json"] }
 semver = "1.0.22"
