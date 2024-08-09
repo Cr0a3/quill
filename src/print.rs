@@ -22,7 +22,7 @@ pub fn help() {
 }
 
 pub fn help_cmd(cmd: String) {
-    match cmd {
+    match cmd.as_str() {
         "-v, --version" => {
 
         }
